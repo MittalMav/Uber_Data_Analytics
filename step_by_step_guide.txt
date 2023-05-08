@@ -1,0 +1,54 @@
+Flow of tasks:
+
+Actions on GCP:
+Create your project
+
+create bucket for your project to store data. Bucket name should be unique across google universe. I wanted to make this data public through API access so had to uncheck public access prevention on created bucket. Upload your files to  bucket and make it public.(click on three dots -> edit access -> Public = allUsers = reader)
+If you get error : "Can not get legacy ACL for an object when uniform bucket level access is enabled..."
+In this case go to Permissions tab and change uniform access to fine-grained access.
+Uniform access: ensure uniform access to all objects in bucket by using only bucket level permissions(IAM). This option becomes permanent after 90 days.
+Fine-grained access: specify access to individual objects by using object level permissions(ACLs) in addition to your bucket level permisiions(IAM).
+
+In this project we are using mage for data ingestion,transformation and loading. create new vm instance, standard - 4 CPU cores and 16 gigs RAM. Make sure to check allow HTTP & HTTPS traffic so that we can access it once we deploy our code.
+
+once VM is created run it by clicking on SSH.
+execute below commands to set your VM for python coding:
+# Install Python and pip 
+sudo apt-get install update  // update OS and install latest files
+sudo apt-get install python3-distutils
+sudo apt-get install python3-apt
+
+sudo apt-get install wget
+wget https://bootstrap.pypa.io/get-pip.py
+sudo python3 get-pip.py
+
+
+# Install Mage
+sudo pip3 install mage-ai
+
+# Install Pandas
+sudo pip3 install pandas
+
+# Install Google Cloud Library
+sudo pip3 install google-cloud
+sudo pip3 install google-cloud-bigquery
+
+once done start mage:
+ http://localhost(VM):6789 
+ 
+Also we need to set up firewall rule so that instace can accept requests from this port(6789)
+click on respective network interfaces -> Firewall -> create firewall rule.
+
+Now to load data to GCP bigQuery datawarehouse:
+we need to update io_config.yaml file so that we can have access to load data from our exporter block.
+service account ==> we are allowing our vm to connect with all the other gcp services
+
+in your GCP console goto API & Services => create credentials => Service account => name & description =>BigQuery Admin =>Done
+click on your service account you just created. go to Keys => Add Key => create new key => Json => this will create JSON file where all your credentials will be available.
+
+copy details from this JSon file to your ioconfig.yaml file.
+
+BigQuery:
+go to BigQuery and create dataset.
+in your mage export block this will be required to create a table_id
+
